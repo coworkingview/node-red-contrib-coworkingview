@@ -1,0 +1,154 @@
+<script type="text/javascript">
+    RED.nodes.registerType('coworkingview', {
+        category: 'network',
+        color: '#A6BBCF',
+        defaults: {
+            name: { value: '' },
+            operation: { value: 'search', required: true },
+            city: { value: '' },
+            slug: { value: '' },
+            pricingOptionType: { value: '' },
+            locale: { value: 'en' },
+            limit: { value: '', validate: RED.validators.regex(/^$|^[0-9]+$/) },
+            currency: { value: '', validate: RED.validators.regex(/^$|^[A-Za-z]{3}$/) },
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'coworkingview.svg',
+        paletteLabel: 'coworkingview',
+        label: function () {
+            if (this.name) return this.name;
+            const subject = this.operation === 'space' ? this.slug : this.city;
+            return 'coworking ' + this.operation + (subject ? ' ' + subject : '');
+        },
+        labelStyle: function () {
+            return this.name ? 'node_label_italic' : '';
+        },
+        oneditprepare: function () {
+            const rows = {
+                search: ['city', 'type', 'limit'],
+                space: ['slug'],
+                rates: ['city', 'currency'],
+                rankings: ['city', 'limit'],
+                cities: [],
+            };
+            const all = ['city', 'slug', 'type', 'limit', 'currency'];
+            function toggle() {
+                const visible = rows[$('#node-input-operation').val()] || [];
+                all.forEach(function (row) {
+                    $('#coworkingview-row-' + row).toggle(visible.indexOf(row) !== -1);
+                });
+            }
+            $('#node-input-operation').on('change', toggle);
+            toggle();
+        },
+    });
+</script>
+
+<script type="text/html" data-template-name="coworkingview">
+    <div class="form-row">
+        <label for="node-input-operation"><i class="fa fa-tasks"></i> Operation</label>
+        <select id="node-input-operation">
+            <option value="search">Search spaces in a city</option>
+            <option value="space">Get one space</option>
+            <option value="rates">Market rates for a city</option>
+            <option value="rankings">Best-value ranking for a city</option>
+            <option value="cities">List cities</option>
+        </select>
+    </div>
+    <div class="form-row" id="coworkingview-row-city">
+        <label for="node-input-city"><i class="fa fa-map-marker"></i> City</label>
+        <input type="text" id="node-input-city" placeholder="berlin (or msg.city)">
+    </div>
+    <div class="form-row" id="coworkingview-row-slug">
+        <label for="node-input-slug"><i class="fa fa-building"></i> Space</label>
+        <input type="text" id="node-input-slug" placeholder="space slug (or msg.slug)">
+    </div>
+    <div class="form-row" id="coworkingview-row-type">
+        <label for="node-input-pricingOptionType"><i class="fa fa-filter"></i> Type</label>
+        <select id="node-input-pricingOptionType">
+            <option value="">Any</option>
+            <option value="private_office">Private office</option>
+            <option value="exclusive_bereich">Exclusive area</option>
+            <option value="fix_desk">Fixed desk</option>
+            <option value="flex_desk">Flex desk</option>
+            <option value="day_pass">Day pass</option>
+            <option value="meeting_room">Meeting room</option>
+            <option value="virtual_office">Virtual office</option>
+            <option value="event_space">Event space</option>
+            <option value="membership">Membership</option>
+        </select>
+    </div>
+    <div class="form-row" id="coworkingview-row-limit">
+        <label for="node-input-limit"><i class="fa fa-list-ol"></i> Limit</label>
+        <input type="text" id="node-input-limit" placeholder="10">
+    </div>
+    <div class="form-row" id="coworkingview-row-currency">
+        <label for="node-input-currency"><i class="fa fa-money"></i> Currency</label>
+        <input type="text" id="node-input-currency" placeholder="local currency (e.g. EUR, USD)">
+    </div>
+    <div class="form-row">
+        <label for="node-input-locale"><i class="fa fa-language"></i> Language</label>
+        <select id="node-input-locale">
+            <option value="en">English</option>
+            <option value="de">Deutsch</option>
+            <option value="es">Español</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="coworkingview">
+    <p>Looks up coworking spaces, private offices and market rates in the
+        <a href="https://coworkingview.com/en" target="_blank">CoworkingView</a> catalogue.
+        Reads are free and need no API key.</p>
+
+    <h3>Inputs</h3>
+    <p>Any of these message properties overrides the node's own field, so one node can serve many cities.</p>
+    <dl class="message-properties">
+        <dt class="optional">payload <span class="property-type">string</span></dt>
+        <dd>When the city (or, for <i>space</i>, the slug) is left empty, a string payload fills it.</dd>
+        <dt class="optional">operation <span class="property-type">string</span></dt>
+        <dd><code>search</code>, <code>space</code>, <code>rates</code>, <code>rankings</code> or <code>cities</code>.</dd>
+        <dt class="optional">city <span class="property-type">string</span></dt>
+        <dd>City slug, e.g. <code>berlin</code>, <code>madrid</code>, <code>london</code>. Use <i>cities</i> to list them.</dd>
+        <dt class="optional">slug <span class="property-type">string</span></dt>
+        <dd>A space's slug, as returned by <i>search</i>.</dd>
+        <dt class="optional">pricingOptionType <span class="property-type">string</span></dt>
+        <dd>Search only: <code>private_office</code>, <code>flex_desk</code>, <code>day_pass</code>,
+            <code>meeting_room</code>, <code>virtual_office</code> and more.</dd>
+        <dt class="optional">limit <span class="property-type">number</span></dt>
+        <dd>Search: 1-100 (default 10). Rankings: 1-25 (default 10).</dd>
+        <dt class="optional">page <span class="property-type">number</span></dt>
+        <dd>Search only, 1-based.</dd>
+        <dt class="optional">currency <span class="property-type">string</span></dt>
+        <dd>Rates only: ISO 4217 code to convert the figures to.</dd>
+        <dt class="optional">locale <span class="property-type">string</span></dt>
+        <dd><code>en</code>, <code>de</code> or <code>es</code>.</dd>
+    </dl>
+
+    <h3>Outputs</h3>
+    <dl class="message-properties">
+        <dt>payload <span class="property-type">array | object</span></dt>
+        <dd>The API's data: a list of spaces or cities, one space, the city's market rates, or its ranking.</dd>
+        <dt>statusCode <span class="property-type">number</span></dt>
+        <dd>The HTTP status of the API response.</dd>
+        <dt>coworkingview <span class="property-type">object</span></dt>
+        <dd><code>operation</code>, the request <code>url</code> and the response <code>meta</code>
+            (pagination, source); on failure, the API's <code>problem</code> document.</dd>
+    </dl>
+
+    <h3>Details</h3>
+    <p>Market rates are medians over the priced spaces in a city; read <code>sampleSize</code>
+        before treating a figure as "the market rate". A ranking's <code>score</code> encodes order only.</p>
+    <p>Errors (unknown city, bad input, network) go to a <b>Catch</b> node with the original message.</p>
+
+    <h3>References</h3>
+    <ul>
+        <li><a href="https://coworkingview.com/en/mcp" target="_blank">CoworkingView API, CLI and MCP server</a></li>
+        <li><a href="https://coworkingview.com/openapi.json" target="_blank">OpenAPI specification</a></li>
+    </ul>
+</script>
