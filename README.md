@@ -6,7 +6,7 @@
 
 A [Node-RED](https://nodered.org) node for the [CoworkingView](https://coworkingview.com) catalogue
 of coworking spaces, private offices and flexible workspace. Search a city, fetch one space, read a
-city's market rates or its best-value ranking, all from a flow.
+or read a city's market rates, all from a flow.
 
 **Reads need no API key and no sign-up.** The node calls the public
 [CoworkingView API](https://coworkingview.com/en/mcp) (`https://api.coworkingview.com/v1`), which is rate-limited.
@@ -30,7 +30,6 @@ Then restart Node-RED. The node appears in the **network** category as `coworkin
 | **Search spaces in a city** | `city` | An array of spaces (title, slug, city, entry price…) |
 | **Get one space** | `slug` | The full record for one space: pricing options, amenities, address |
 | **Market rates for a city** | `city` | Median prices per workspace type, with sample sizes |
-| **Best-value ranking for a city** | `city` | Spaces ranked by value for money |
 | **List cities** | — | Every city slug you can query |
 
 Every field can be set on the node or sent on the message, and the message wins, so one node can
@@ -39,11 +38,11 @@ serve many cities:
 | Message property | Used by | Example |
 | --- | --- | --- |
 | `msg.payload` (string) | all but *cities* | `"berlin"` fills an empty city, or an empty slug for *space* |
-| `msg.operation` | all | `search`, `space`, `rates`, `rankings`, `cities` |
-| `msg.city` | search, rates, rankings | `berlin`, `madrid`, `barcelona`, `london`, `munich` |
+| `msg.operation` | all | `search`, `space`, `rates`, `cities` |
+| `msg.city` | search, rates | `berlin`, `madrid`, `barcelona`, `london`, `munich` |
 | `msg.slug` | space | a `slug` from a search result |
 | `msg.pricingOptionType` | search | `private_office`, `flex_desk`, `fix_desk`, `day_pass`, `meeting_room`, `virtual_office`, `event_space`, `membership`, `exclusive_bereich` |
-| `msg.limit` | search (1–100), rankings (1–25) | `5` |
+| `msg.limit` | search (1–50) | `5` |
 | `msg.page` | search | `2` |
 | `msg.currency` | rates | `USD` |
 | `msg.locale` | all | `en`, `de`, `es` |
@@ -69,7 +68,6 @@ flex-desk price moves, or feed a dashboard with the [price index](https://cowork
 
 - Market rates are **medians over the priced spaces in a city**. Check `sampleSize` before calling a
   figure "the market rate": a small sample is a small sample.
-- A ranking's `score` encodes **order only**. Don't print it as a rating or compare it across cities.
 - Prices are what operators publish; the space's page on coworkingview.com has the current offer.
 
 ## More ways in
@@ -77,6 +75,7 @@ flex-desk price moves, or feed a dashboard with the [price index](https://cowork
 - **Website:** [coworkingview.com](https://coworkingview.com): coworking in
   [Berlin](https://coworkingview.com/en/coworking/berlin), [Madrid](https://coworkingview.com/en/coworking/madrid),
   [Barcelona](https://coworkingview.com/en/coworking/barcelona) and more
+- **Go:** [`coworkingview-go`](https://pkg.go.dev/github.com/coworkingview/coworkingview-go)
 - **CLI:** [`@coworkingview/cli`](https://www.npmjs.com/package/@coworkingview/cli)
 - **MCP server** for AI assistants: [coworkingview.com/en/mcp](https://coworkingview.com/en/mcp)
 - **OpenAPI:** [coworkingview.com/openapi.json](https://coworkingview.com/openapi.json)

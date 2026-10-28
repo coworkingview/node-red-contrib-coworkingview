@@ -32,10 +32,17 @@ test('the node field beats the payload', () => {
     assert.match(buildRequest({ operation: 'search', city: 'berlin' }, { payload: 'paris' }, API).url, /city=berlin/);
 });
 
-test('rates uppercases the currency, rankings caps the limit at 25', () => {
+test('rates uppercases the currency', () => {
     assert.match(buildRequest({ operation: 'rates', city: 'berlin', currency: 'usd' }, {}, API).url, /currency=USD/);
-    assert.match(buildRequest({ operation: 'rankings', city: 'berlin', limit: '25' }, {}, API).url, /\/v1\/rankings\?.*limit=25/);
-    assert.throws(() => buildRequest({ operation: 'rankings', city: 'berlin', limit: '26' }, {}, API), UsageError);
+});
+
+test('search caps the limit at the API maximum of 50', () => {
+    assert.match(buildRequest({ operation: 'search', city: 'berlin', limit: '50' }, {}, API).url, /pageSize=50/);
+    assert.throws(() => buildRequest({ operation: 'search', city: 'berlin', limit: '51' }, {}, API), UsageError);
+});
+
+test('rankings is gone: the API retired it', () => {
+    assert.throws(() => buildRequest({ operation: 'rankings', city: 'berlin' }, {}, API), /Unknown operation/);
 });
 
 test('cities needs nothing but a locale', () => {

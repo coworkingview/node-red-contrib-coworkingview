@@ -29,7 +29,6 @@
                 search: ['city', 'type', 'limit'],
                 space: ['slug'],
                 rates: ['city', 'currency'],
-                rankings: ['city', 'limit'],
                 cities: [],
             };
             const all = ['city', 'slug', 'type', 'limit', 'currency'];
@@ -52,7 +51,6 @@
             <option value="search">Search spaces in a city</option>
             <option value="space">Get one space</option>
             <option value="rates">Market rates for a city</option>
-            <option value="rankings">Best-value ranking for a city</option>
             <option value="cities">List cities</option>
         </select>
     </div>
@@ -112,7 +110,7 @@
         <dt class="optional">payload <span class="property-type">string</span></dt>
         <dd>When the city (or, for <i>space</i>, the slug) is left empty, a string payload fills it.</dd>
         <dt class="optional">operation <span class="property-type">string</span></dt>
-        <dd><code>search</code>, <code>space</code>, <code>rates</code>, <code>rankings</code> or <code>cities</code>.</dd>
+        <dd><code>search</code>, <code>space</code>, <code>rates</code> or <code>cities</code>.</dd>
         <dt class="optional">city <span class="property-type">string</span></dt>
         <dd>City slug, e.g. <code>berlin</code>, <code>madrid</code>, <code>london</code>. Use <i>cities</i> to list them.</dd>
         <dt class="optional">slug <span class="property-type">string</span></dt>
@@ -121,7 +119,7 @@
         <dd>Search only: <code>private_office</code>, <code>flex_desk</code>, <code>day_pass</code>,
             <code>meeting_room</code>, <code>virtual_office</code> and more.</dd>
         <dt class="optional">limit <span class="property-type">number</span></dt>
-        <dd>Search: 1-100 (default 10). Rankings: 1-25 (default 10).</dd>
+        <dd>Search only: 1-50 (default 10).</dd>
         <dt class="optional">page <span class="property-type">number</span></dt>
         <dd>Search only, 1-based.</dd>
         <dt class="optional">currency <span class="property-type">string</span></dt>
@@ -133,7 +131,7 @@
     <h3>Outputs</h3>
     <dl class="message-properties">
         <dt>payload <span class="property-type">array | object</span></dt>
-        <dd>The API's data: a list of spaces or cities, one space, the city's market rates, or its ranking.</dd>
+        <dd>The API's data: a list of spaces or cities, one space, or the city's market rates.</dd>
         <dt>statusCode <span class="property-type">number</span></dt>
         <dd>The HTTP status of the API response.</dd>
         <dt>coworkingview <span class="property-type">object</span></dt>
@@ -143,7 +141,7 @@
 
     <h3>Details</h3>
     <p>Market rates are medians over the priced spaces in a city; read <code>sampleSize</code>
-        before treating a figure as "the market rate". A ranking's <code>score</code> encodes order only.</p>
+        before treating a figure as "the market rate".</p>
     <p>Errors (unknown city, bad input, network) go to a <b>Catch</b> node with the original message.</p>
 
     <h3>References</h3>
